@@ -1,7 +1,9 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.Manifest
 import android.os.Bundle
 import android.view.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.NavHostFragment
 import com.firebase.ui.auth.AuthUI
@@ -79,7 +81,9 @@ class ReminderListFragment : BaseFragment() {
                     _viewModel.navigationCommand.postValue(
                         NavigationCommand.To(
                             ReminderListFragmentDirections.actionReminderListFragmentToAuthenticationActivity()
-                        ))
+                            //TODO: EVITAR VOLTAR QUANDO NÃO LOGADO
+                        )
+                    )
                 }
 
             }
