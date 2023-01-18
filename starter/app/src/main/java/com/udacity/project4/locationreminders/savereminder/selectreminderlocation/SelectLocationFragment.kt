@@ -49,12 +49,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
-//        TODO: add the map setup implementation
+
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-//        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
 
 
@@ -162,10 +160,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         val zoomLevel = 17f
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
-        map.addMarker(MarkerOptions().position(homeLatLng))
+       // map.addMarker(MarkerOptions().position(homeLatLng))
 
         // TODO addMapOverlay(homeLatLng)
-
+        map.isMyLocationEnabled=true
         setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
