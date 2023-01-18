@@ -24,6 +24,8 @@ import org.koin.android.ext.android.inject
 import java.util.*
 
 import android.content.ContentValues.TAG
+import android.location.Location
+import com.google.android.gms.location.LocationServices
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -48,8 +50,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
 //        TODO: add the map setup implementation
-        val mapFragment = requireActivity().supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
 //        TODO: zoom to the user location after taking his permission
@@ -100,7 +101,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         return ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        ) == PackageManager.PERMISSION_GRANTED  && ActivityCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
     }
 
     private fun enableMyLocation() {
@@ -109,7 +113,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         } else {
             ActivityCompat.requestPermissions(
                 requireActivity(),
-                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
                 REQUEST_LOCATION_PERMISSION
             )
         }
@@ -130,8 +134,28 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        val latitude = -8.112558724107767
-        val longitude = -34.941110527149135
+        enableMyLocation()
+
+        getUserLastLocation(googleMap)
+
+
+    }
+
+    private fun getUserLastLocation(googleMap: GoogleMap) {
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                // Got last known location. In some rare situations this can be null.
+
+
+                setUserMapDisplaying(location, googleMap)
+
+            }
+    }
+
+    private fun setUserMapDisplaying(location: Location?, googleMap: GoogleMap) {
+        val latitude = location!!.latitude  //TODO: show a message to the user if location was not able
+        val longitude = location.longitude
 
         val homeLatLng = LatLng(latitude, longitude)
         map = googleMap
@@ -140,13 +164,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
         map.addMarker(MarkerOptions().position(homeLatLng))
 
-        addMapOverlay(homeLatLng)
+        // TODO addMapOverlay(homeLatLng)
 
         setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
-        enableMyLocation()
-
     }
 
     private fun addMapOverlay(homeLatLng: LatLng) {
