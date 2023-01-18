@@ -27,6 +27,7 @@ import android.content.ContentValues.TAG
 import android.location.Location
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.LocationServices
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.locationreminders.reminderslist.ReminderListFragmentDirections
@@ -71,10 +72,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
     private fun onLocationSelected() {
+
+
         _viewModel.selectedPOI.value = lastSelectedPoi
 
 
-
+     findNavController().popBackStack()
 
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model

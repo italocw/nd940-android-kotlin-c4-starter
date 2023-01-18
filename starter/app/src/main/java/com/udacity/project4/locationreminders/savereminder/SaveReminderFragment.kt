@@ -31,6 +31,13 @@ class SaveReminderFragment : BaseFragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (_viewModel.selectedPOI.value != null) {
+            binding.selectedLocation.text = _viewModel.selectedPOI.value!!.name
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
