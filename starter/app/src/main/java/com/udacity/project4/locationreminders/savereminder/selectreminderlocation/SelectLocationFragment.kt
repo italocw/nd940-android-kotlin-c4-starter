@@ -25,9 +25,15 @@ import java.util.*
 
 import android.content.ContentValues.TAG
 import android.location.Location
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import com.google.android.gms.location.LocationServices
+import com.udacity.project4.base.NavigationCommand
+import com.udacity.project4.locationreminders.reminderslist.ReminderListFragmentDirections
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
+
+    private lateinit var lastSelectedPoi: PointOfInterest
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
@@ -57,12 +63,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
 //        TODO: call this function after the user confirms on the selected location
-        onLocationSelected()
-
+        binding.saveButton.setOnClickListener() {
+            onLocationSelected()
+        }
         return binding.root
     }
 
+
     private fun onLocationSelected() {
+        _viewModel.selectedPOI.value = lastSelectedPoi
+
+
+
+
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
@@ -99,7 +112,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         return ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED  && ActivityCompat.checkSelfPermission(
+        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) != PackageManager.PERMISSION_GRANTED
@@ -111,7 +124,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         } else {
             ActivityCompat.requestPermissions(
                 requireActivity(),
-                arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                arrayOf<String>(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
                 REQUEST_LOCATION_PERMISSION
             )
         }
@@ -152,7 +168,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun setUserMapDisplaying(location: Location?, googleMap: GoogleMap) {
-        val latitude = location!!.latitude  //TODO: show a message to the user if location was not able
+        val latitude =
+            location!!.latitude  //TODO: show a message to the user if location was not able
         val longitude = location.longitude
 
         val homeLatLng = LatLng(latitude, longitude)
@@ -160,11 +177,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         val zoomLevel = 17f
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(homeLatLng, zoomLevel))
-       // map.addMarker(MarkerOptions().position(homeLatLng))
+        // map.addMarker(MarkerOptions().position(homeLatLng))
 
         // TODO addMapOverlay(homeLatLng)
-        map.isMyLocationEnabled=true
-        setMapLongClick(map)
+        map.isMyLocationEnabled = true
+        //  setMapLongClick(map)
         setPoiClick(map)
         setMapStyle(map)
     }
@@ -199,12 +216,23 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
+
             val poiMarker = map.addMarker(
                 MarkerOptions()
+
                     .position(poi.latLng)
                     .title(poi.name)
+
             )
+
+            poiMarker!!.showInfoWindow()
+            binding.saveButton.visibility = VISIBLE
+
+            lastSelectedPoi = poi
+
         }
+
+
     }
 
     private fun setMapStyle(map: GoogleMap) {
@@ -225,7 +253,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Log.e(TAG, "Can't find style. Error: ", e)
         }
     }
+
 }
+
 
 
 
