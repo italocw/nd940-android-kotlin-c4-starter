@@ -111,50 +111,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
-    private fun isPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            requireContext(),
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun enableMyLocation() {
-        if (isPermissionGranted()) {
-            map.setMyLocationEnabled(true)
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf<String>(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                REQUEST_LOCATION_PERMISSION
-            )
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        // Check if location permissions are granted and if so enable the
-        // location data layer.
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.size > 0 && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                enableMyLocation()
-            }
-        }
-    }
 
     override fun onMapReady(googleMap: GoogleMap) {
-        enableMyLocation()
 
         getUserLastLocation(googleMap)
-
 
     }
 
